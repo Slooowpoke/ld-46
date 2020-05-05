@@ -18,8 +18,31 @@ public class Movement : MonoBehaviour
     bool isGrounded = false;
     bool isRefilling = false, isBeingBoosted = false;
 
+    public PlayerControls controls;
+    Vector2 move;
+
+    void Awake()
+    {
+        controls = new PlayerControls();
+
+        controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
+        controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
+    }
+
+    void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    void OnDisable()
+    {
+        controls.Gameplay.Disable();
+    }
+
+
     void Start()
     {
+
         levelLoaderScript = (LevelLoaderTest)levelLoader.GetComponent(typeof(LevelLoaderTest));
         rigidB = GetComponent<Rigidbody>();
         transform = GetComponent<Transform>();
@@ -39,6 +62,52 @@ public class Movement : MonoBehaviour
         if (isBeingBoosted)
         {
             speedToApply += 5;
+        }
+
+        if(move.y > 0)
+        {
+            // up
+            rigidB.AddForce(Vector3.forward * (speedToApply * (move.y*100f)) * Time.deltaTime);
+            if (!isRefilling)
+            {
+                newScale.x -= -0.05f;
+                newScale.y -= -0.05f;
+                newScale.z -= -0.05f;
+            }
+        }
+        if (move.y < 0)
+        {
+            // down
+            rigidB.AddForce(Vector3.back * (speedToApply * ((move.y * -1) * 100f)) * Time.deltaTime);
+            if (!isRefilling)
+            {
+                newScale.x -= -0.05f;
+                newScale.y -= -0.05f;
+                newScale.z -= -0.05f;
+            }
+        }
+
+        if (move.x > 0)
+        {
+            // up
+            rigidB.AddForce(Vector3.right * (speedToApply * (move.x * 100f)) * Time.deltaTime);
+            if (!isRefilling)
+            {
+                newScale.x -= -0.05f;
+                newScale.y -= -0.05f;
+                newScale.z -= -0.05f;
+            }
+        }
+        if (move.x < 0)
+        {
+            // down
+            rigidB.AddForce(Vector3.left * (speedToApply * ((move.x * -1) * 100f)) * Time.deltaTime);
+            if (!isRefilling)
+            {
+                newScale.x -= -0.05f;
+                newScale.y -= -0.05f;
+                newScale.z -= -0.05f;
+            }
         }
 
         if (Input.GetKey("up"))
